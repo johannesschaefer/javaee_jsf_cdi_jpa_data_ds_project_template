@@ -24,6 +24,13 @@
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
 
         <class>org.os890.cdi.template.model.ConfigEntry</class>
+        <class>de.psi.metals.futurelab.repo.benchmark.FactoryCalendar</class>
+        <class>de.psi.metals.futurelab.repo.benchmark.Material</class>         
+        <class>de.psi.metals.futurelab.repo.benchmark.ProductionOrder</class>         
+        <class>de.psi.metals.futurelab.repo.benchmark.ProductionStep</class>
+        <class>de.psi.metals.futurelab.repo.benchmark.Resource</class>
+        <class>de.psi.metals.futurelab.repo.benchmark.RuleViolation</class>
+        <class>de.psi.metals.futurelab.repo.benchmark.Schedule</class>
 
         <properties>
             <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
