@@ -97,7 +97,7 @@ public class ReadTest
         }
         tx.commit();
         endTime = System.nanoTime();
-        System.out.println( "warm up " + (endTime - startTime) / 10000000000. + " sec" );
+        System.out.println( "warm up " + (endTime - startTime) / 1_000_000_000. + " sec" );
     }
 
     @Test
@@ -178,8 +178,8 @@ public class ReadTest
             matRepo.findBy( "mat" + r.nextInt( MAX ) );
         }
         endTime = System.nanoTime();
-        System.out.println( "find ds took " + (endTime - startTime) / 1000000000. + " sec" );
-        times.put( "ds " + c, (endTime - startTime) / 1000000000. );
+        System.out.println( "find ds took " + (endTime - startTime) / 1_000_000_000. + " sec" );
+        times.put( "ds " + c, (endTime - startTime) / 1_000_000_000. );
     }
 
     @Test
@@ -259,7 +259,7 @@ public class ReadTest
             em.find( Material.class, "mat" + r.nextInt( MAX ) );
         }
         endTime = System.nanoTime();
-        System.out.println( "find em took " + (endTime - startTime) / 1000000000. + " sec" );
-        times.put( "em " + c, (endTime - startTime) / 1000000000. );
+        System.out.println( "find em took " + (endTime - startTime) / 1_000_000_000. + " sec" );
+        times.put( "em " + c, (endTime - startTime) / 1_000_000_000. );
     }
 }

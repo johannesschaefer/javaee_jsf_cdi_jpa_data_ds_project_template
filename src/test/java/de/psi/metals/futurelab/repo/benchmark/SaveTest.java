@@ -84,7 +84,7 @@ public class SaveTest
         }
         matRepo.findAll().forEach( matRepo::remove );
         endTime = System.nanoTime();
-        System.out.println( "warm up " + (endTime - startTime) / 10000000000. + " sec" );
+        System.out.println( "warm up " + (endTime - startTime) / 1_000_000_000. + " sec" );
     }
 
     @ApplicationScoped
@@ -177,8 +177,8 @@ public class SaveTest
             matRepo.save( mat );
         }
         endTime = System.nanoTime();
-        System.out.println( "save " + c + " ds took " + (endTime - startTime) / 1000000000. + " sec" );
-        times.put( "ds " + c, (endTime - startTime) / 1000000000. );
+        System.out.println( "save " + c + " ds took " + (endTime - startTime) / 1_000_000_000. + " sec" );
+        times.put( "ds " + c, (endTime - startTime) / 1_000_000_000. );
     }
 
     @Test
@@ -259,10 +259,11 @@ public class SaveTest
             mat.setMaterialName( "mat-em" + i );
             mat.setGrade( "AAA" );
             em.persist( mat );
+            em.flush();
             tx.commit();
         }
         endTime = System.nanoTime();
-        System.out.println( "save " + c + " em took " + (endTime - startTime) / 10000000000. + " sec" );
-        times.put( "em " + c, (endTime - startTime) / 1000000000. );
+        System.out.println( "save " + c + " em took " + (endTime - startTime) / 1_000_000_000. + " sec" );
+        times.put( "em " + c, (endTime - startTime) / 1_000_000_000. );
     }
 }
