@@ -251,16 +251,16 @@ public class SaveTest
     {
         System.out.println( "saveMaterialEntityManager" );
         long endTime, startTime = System.nanoTime();
-        EntityTransaction tx = em.getTransaction();
-        tx.begin();
         for( int i = 0; i < c; i++ )
         {
+            EntityTransaction tx = em.getTransaction();
+            tx.begin();
             Material mat = new Material();
             mat.setMaterialName( "mat-em" + i );
             mat.setGrade( "AAA" );
             em.persist( mat );
+            tx.commit();
         }
-        tx.commit();
         endTime = System.nanoTime();
         System.out.println( "save " + c + " em took " + (endTime - startTime) / 10000000000. + " sec" );
         times.put( "em " + c, (endTime - startTime) / 1000000000. );
