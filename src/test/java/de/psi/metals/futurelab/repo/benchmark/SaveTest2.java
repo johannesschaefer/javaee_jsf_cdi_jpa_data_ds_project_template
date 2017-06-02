@@ -113,7 +113,7 @@ public class SaveTest2 {
             Material mat = new Material();
             mat.setMaterialName("mat-ds" + i);
             mat.setGrade("AAA");
-            matRepo.save(mat);
+            matRepo.save( mat );
         }
         endTime = System.currentTimeMillis();
         long result = endTime - startTime;

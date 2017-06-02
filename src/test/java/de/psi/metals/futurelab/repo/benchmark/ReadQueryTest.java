@@ -1,6 +1,6 @@
 //******************************************************************
 //                                                                 
-//  SaveTest.java                                               
+//  ReadTest.java                                               
 //  Copyright 2017 PSI AG. All rights reserved.              
 //  PSI PROPRIETARY/CONFIDENTIAL. Use is subject to license terms
 //                                                                 
@@ -13,14 +13,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.AfterClass;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -28,8 +31,10 @@ import de.psi.metals.futurelab.repo.benchmark.repo.MaterialRepoIf;
 import dnl.utils.text.table.TextTable;
 
 @RunWith( CdiTestRunner.class )
-public class SaveTest
+public class ReadQueryTest
 {
+    private static final int MAX = 10000;
+
     @Inject
     private MaterialRepoIf matRepo;
 
@@ -69,201 +74,220 @@ public class SaveTest
         tt.printTable();
     }
 
-    @ApplicationScoped
-    @Before
-    public void warmUp()
+    @BeforeClass
+    public static void createData()
     {
-        System.out.println( "warmUp" );
+        System.out.println( "createData" );
+        EntityManagerFactory emfl = Persistence.createEntityManagerFactory( "testPU" );
+        EntityManager eml = emfl.createEntityManager();
         final long endTime, startTime = System.nanoTime();
-        for( int i = 0; i < 100; i++ )
+        EntityTransaction tx = eml.getTransaction();
+        tx.begin();
+
+        Query queryDel = eml.createQuery( "DELETE FROM Material" );
+        queryDel.executeUpdate();
+
+        for( int i = 0; i < MAX; i++ )
         {
             Material mat = new Material();
-            mat.setMaterialName( "mat-ds" + i );
-            mat.setGrade( "AAA" );
-            matRepo.save( mat );
+            mat.setMaterialName( "mat" + i );
+            mat.setGrade( i % 2 == 0 ? "AAA" : "BBB" );
+            mat.setWidth( i % 10 );
+            mat.setThickness( i % 10 );
+            eml.persist( mat );
+            // eml.flush();
         }
-        matRepo.findAll().forEach( matRepo::remove );
+        tx.commit();
+
+        for( int i = 0; i < 100; i++ )
+        {
+            TypedQuery< Material > query = eml.createQuery(
+                "SELECT m FROM Material m WHERE grade = :grade AND width = :width AND thickness = :thickness",
+                Material.class );
+            query.setParameter( "grade", "AAA" );
+            query.setParameter( "width", 5 );
+            query.setParameter( "thickness", 5. );
+            List< Material > mats = query.getResultList();
+            mats.size();
+        }
+
         endTime = System.nanoTime();
         System.out.println( "warm up " + (endTime - startTime) / 1_000_000_000. + " sec" );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike10()
+    public void readDeltaSpike10()
     {
         ds( 10 );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike20()
+    public void readDeltaSpike20()
     {
         ds( 20 );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike40()
+    public void readDeltaSpike40()
     {
         ds( 40 );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike80()
+    public void readDeltaSpike80()
     {
         ds( 80 );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike160()
+    public void readDeltaSpike160()
     {
         ds( 160 );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike320()
+    public void readDeltaSpike320()
     {
         ds( 320 );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike640()
+    public void readDeltaSpike640()
     {
         ds( 640 );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike1280()
+    public void readDeltaSpike1280()
     {
         ds( 1280 );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike2560()
+    public void readDeltaSpike2560()
     {
         ds( 2560 );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike5120()
+    public void readDeltaSpike5120()
     {
         ds( 5120 );
     }
 
-    @ApplicationScoped
     @Test
-    public void saveMaterialDeltaSpike10240()
+    public void readDeltaSpike10240()
     {
         ds( 10240 );
     }
 
     private void ds( int c )
     {
-        System.out.println( "saveMaterialDeltaSpike" );
-        // save
+        System.out.println( "readDeltaSpike" );
+
+        // short warm up
+        for( int i = 0; i < 10; i++ )
+        {
+            List< Material > mats = matRepo.findByGradeAndWidthAndThickness( "AAA", 5, 5. );
+            mats.size();
+        }
+
+        // find
         long endTime, startTime = System.nanoTime();
         for( int i = 0; i < c; i++ )
         {
-            Material mat = new Material();
-            mat.setMaterialName( "mat-ds" + i );
-            mat.setGrade( "AAA" );
-            matRepo.save( mat );
+            List< Material > mats = matRepo.findByGradeAndWidthAndThickness( "AAA", 5, 5. );
+            mats.size();
         }
         endTime = System.nanoTime();
-        System.out.println( "save " + c + " ds took " + (endTime - startTime) / 1_000_000_000. + " sec" );
+        System.out.println( "find ds took " + (endTime - startTime) / 1_000_000_000. + " sec" );
         times.put( "ds " + c, (endTime - startTime) / 1_000_000_000. );
     }
 
     @Test
-    public void saveMaterialEntityManager10()
+    public void readEntityManager10()
     {
         em( 10 );
     }
 
     @Test
-    public void saveMaterialEntityManager20()
+    public void readEntityManager20()
     {
         em( 20 );
     }
 
     @Test
-    public void saveMaterialEntityManager40()
+    public void readEntityManager40()
     {
         em( 40 );
     }
 
     @Test
-    public void saveMaterialEntityManager80()
+    public void readEntityManager80()
     {
         em( 80 );
     }
 
     @Test
-    public void saveMaterialEntityManager160()
+    public void readEntityManager160()
     {
         em( 160 );
     }
 
     @Test
-    public void saveMaterialEntityManager320()
+    public void readEntityManager320()
     {
         em( 320 );
     }
 
     @Test
-    public void saveMaterialEntityManager640()
+    public void readEntityManager640()
     {
         em( 640 );
     }
 
     @Test
-    public void saveMaterialEntityManager1280()
+    public void readEntityManager1280()
     {
         em( 1280 );
     }
 
     @Test
-    public void saveMaterialEntityManager2560()
+    public void readEntityManager2560()
     {
         em( 2560 );
     }
 
     @Test
-    public void saveMaterialEntityManager5120()
+    public void readEntityManager5120()
     {
         em( 5120 );
     }
 
     @Test
-    public void saveMaterialEntityManager10240()
+    public void readEntityManager10240()
     {
         em( 10240 );
     }
 
     private void em( int c )
     {
-        System.out.println( "saveMaterialEntityManager" );
+        System.out.println( "readEntityManager" );
+        // find
         long endTime, startTime = System.nanoTime();
         for( int i = 0; i < c; i++ )
         {
-            EntityTransaction tx = em.getTransaction();
-            tx.begin();
-            Material mat = new Material();
-            mat.setMaterialName( "mat-em" + i );
-            mat.setGrade( "AAA" );
-            em.persist( mat );
-            em.flush();
-            tx.commit();
+            TypedQuery< Material > query = em.createQuery(
+                "SELECT m FROM Material m WHERE grade = :grade AND width = :width AND thickness = :thickness",
+                Material.class );
+            query.setParameter( "grade", "AAA" );
+            query.setParameter( "width", 5 );
+            query.setParameter( "thickness", 5. );
+            List< Material > mats = query.getResultList();
+            mats.size();
         }
         endTime = System.nanoTime();
-        System.out.println( "save " + c + " em took " + (endTime - startTime) / 1_000_000_000. + " sec" );
+        System.out.println( "find em took " + (endTime - startTime) / 1_000_000_000. + " sec" );
         times.put( "em " + c, (endTime - startTime) / 1_000_000_000. );
     }
 }

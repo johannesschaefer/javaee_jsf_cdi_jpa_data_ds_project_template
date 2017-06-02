@@ -8,6 +8,8 @@
 
 package de.psi.metals.futurelab.repo.benchmark.repo;
 
+import java.util.List;
+
 import org.apache.deltaspike.data.api.EntityRepository;
 import org.apache.deltaspike.data.api.Repository;
 import org.apache.deltaspike.jpa.api.transaction.Transactional;
@@ -18,7 +20,6 @@ import de.psi.metals.futurelab.repo.benchmark.Material;
 @Transactional
 public interface MaterialRepoIf extends EntityRepository< Material, String >
 {
-
+    List< Material > findByGradeAndWidthAndThickness( String aGrade, int aWidth,
+        double aThickness );
 }
-
-
