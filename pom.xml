@@ -30,7 +30,7 @@
     <version>1.7.0</version>
 
     <properties>
-        <ds.version>1.7.2</ds.version>
+        <ds.version>1.8.1-SNAPSHOT</ds.version>
         <owb15.version>1.7.0</owb15.version>
         <weld.version>2.4.1.Final</weld.version>
     </properties>
@@ -43,6 +43,16 @@
         <repository>
             <id>apache-snapshots</id>
             <url>https://repository.apache.org/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>apache-snapshot-repository</id>
+            <url>http://repository.apache.org/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 
