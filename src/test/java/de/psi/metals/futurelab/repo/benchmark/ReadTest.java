@@ -14,12 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
 import org.junit.AfterClass;
@@ -78,8 +78,7 @@ public class ReadTest
     public static void createData()
     {
         System.out.println( "createData" );
-        EntityManagerFactory emfl = Persistence.createEntityManagerFactory( "testPU" );
-        EntityManager eml = emfl.createEntityManager();
+        EntityManager eml = CDI.current().select( EntityManager.class ).get();
         final long endTime, startTime = System.nanoTime();
         EntityTransaction tx = eml.getTransaction();
         tx.begin();
@@ -96,6 +95,12 @@ public class ReadTest
             // eml.flush();
         }
         tx.commit();
+        for( int i = 0; i < 1000; i++ )
+        {
+            TypedQuery< Material > query2 = eml.createQuery( "SELECT m FROM Material m", Material.class );
+            List< Material > mats = query2.getResultList();
+            mats.size();
+        }
         endTime = System.nanoTime();
         System.out.println( "warm up " + (endTime - startTime) / 1_000_000_000. + " sec" );
     }
